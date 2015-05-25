@@ -1,8 +1,6 @@
 package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.Conf;
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.zcore.util.TL;
 import com.massivecraft.factions.zcore.util.TextUtil;
@@ -42,10 +40,10 @@ public class CmdDescription extends FCommand {
         }
 
         // Broadcast the description to everyone
-        for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
+        /* for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
             fplayer.msg(TL.COMMAND_DESCRIPTION_CHANGES, myFaction.describeTo(fplayer));
             fplayer.sendMessage(myFaction.getDescription());  // players can inject "&" or "`" or "<i>" or whatever in their description; &k is particularly interesting looking
-        }
+        } */
     }
 
     @Override

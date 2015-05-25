@@ -663,9 +663,9 @@ public abstract class MemoryFPlayer implements FPlayer {
 
         if (myFaction.isNormal() && !perm && myFaction.getFPlayers().isEmpty()) {
             // Remove this faction
-            for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
+            /* for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
                 fplayer.msg(TL.LEAVE_DISBANDED, myFaction.describeTo(fplayer, true));
-            }
+            } */
 
             Factions.getInstance().removeFaction(myFaction.getId());
             if (Conf.logFactionDisband) {

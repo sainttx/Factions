@@ -79,9 +79,9 @@ public class CmdAdmin extends FCommand {
         msg(TL.COMMAND_ADMIN_PROMOTES, fyou.describeTo(fme, true));
 
         // Inform all players
-        for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
+        /* for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
             fplayer.msg(TL.COMMAND_ADMIN_PROMOTED, senderIsConsole ? TL.GENERIC_SERVERADMIN.toString() : fme.describeTo(fplayer, true), fyou.describeTo(fplayer), targetFaction.describeTo(fplayer));
-        }
+        } */
     }
 
     public TL getUsageTranslation() {

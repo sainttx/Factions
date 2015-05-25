@@ -1,8 +1,6 @@
 package com.massivecraft.factions.cmd;
 
 import com.massivecraft.factions.Conf;
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.zcore.util.TL;
 
@@ -36,13 +34,13 @@ public class CmdOpen extends FCommand {
         String open = myFaction.getOpen() ? TL.COMMAND_OPEN_OPEN.toString() : TL.COMMAND_OPEN_CLOSED.toString();
 
         // Inform
-        for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
+        /* for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
             if (fplayer.getFactionId().equals(myFaction.getId())) {
                 fplayer.msg(TL.COMMAND_OPEN_CHANGES, fme.getName(), open);
                 continue;
             }
             fplayer.msg(TL.COMMAND_OPEN_CHANGED, myFaction.getTag(fplayer.getFaction()), open);
-        }
+        } */
     }
 
     @Override

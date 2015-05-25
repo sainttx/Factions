@@ -64,14 +64,14 @@ public class CmdTag extends FCommand {
         myFaction.setTag(tag);
 
         // Inform
-        for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
+        /* for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
             if (fplayer.getFactionId().equals(myFaction.getId())) {
                 fplayer.msg(TL.COMMAND_TAG_FACTION, fme.describeTo(myFaction, true), myFaction.getTag(myFaction));
                 continue;
             }
             Faction faction = fplayer.getFaction();
             fplayer.msg(TL.COMMAND_TAG_CHANGED, fme.getColorTo(faction) + oldtag, myFaction.getTag(faction));
-        }
+        } */
 
         FTeamWrapper.updatePrefixes(myFaction);
     }

@@ -70,14 +70,14 @@ public class CmdDisband extends FCommand {
         }
 
         // Inform all players
-        for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
+        /* for (FPlayer fplayer : FPlayers.getInstance().getOnlinePlayers()) {
             String who = senderIsConsole ? TL.GENERIC_SERVERADMIN.toString() : fme.describeTo(fplayer);
             if (fplayer.getFaction() == faction) {
                 fplayer.msg(TL.COMMAND_DISBAND_BROADCAST_YOURS, who);
             } else {
                 fplayer.msg(TL.COMMAND_DISBAND_BROADCAST_NOTYOURS, who, faction.getTag(fplayer));
             }
-        }
+        } */
         if (Conf.logFactionDisband) {
             //TODO: Format this correctly and translate.
             P.p.log("The faction " + faction.getTag() + " (" + faction.getId() + ") was disbanded by " + (senderIsConsole ? "console command" : fme.getName()) + ".");
