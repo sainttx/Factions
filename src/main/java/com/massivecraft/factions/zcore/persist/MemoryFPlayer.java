@@ -15,6 +15,7 @@ import com.massivecraft.factions.struct.Permission;
 import com.massivecraft.factions.struct.Relation;
 import com.massivecraft.factions.struct.Role;
 import com.massivecraft.factions.util.RelationUtil;
+import com.massivecraft.factions.util.WarmUpUtil;
 import com.massivecraft.factions.zcore.util.TL;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -93,6 +94,10 @@ public abstract class MemoryFPlayer implements FPlayer {
     protected transient boolean loginPvpDisabled;
 
     protected boolean spyingChat = false;
+    protected boolean showScoreboard;
+
+    protected WarmUpUtil.Warmup warmup;
+    protected int warmupTask;
 
     public Faction getFaction() {
         if (this.factionId == null) {
@@ -238,6 +243,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         this.autoWarZoneEnabled = false;
         this.loginPvpDisabled = Conf.noPVPDamageToOthersForXSecondsAfterLogin > 0;
         this.powerBoost = 0.0;
+        this.showScoreboard = P.p.getConfig().getBoolean("scoreboard.default-enabled", false);
 
         if (!Conf.newPlayerStartingFactionID.equals("0") && Factions.getInstance().isValidFactionId(Conf.newPlayerStartingFactionID)) {
             this.factionId = Conf.newPlayerStartingFactionID;
@@ -261,6 +267,7 @@ public abstract class MemoryFPlayer implements FPlayer {
         this.spyingChat = other.spyingChat;
         this.lastStoodAt = other.lastStoodAt;
         this.isAdminBypassing = other.isAdminBypassing;
+        this.showScoreboard = P.p.getConfig().getBoolean("scoreboard.default-enabled", false);
     }
 
     public void resetFactionData(boolean doSpoutUpdate) {
@@ -559,17 +566,15 @@ public abstract class MemoryFPlayer implements FPlayer {
         return Board.getInstance().getFactionAt(new FLocation(this)).getRelationTo(this).isEnemy();
     }
 
-    public void sendFactionHereMessage() {
+    public void sendFactionHereMessage(Faction from) {
         Faction toShow = Board.getInstance().getFactionAt(getLastStoodAt());
-        if (shouldShowScoreboard(toShow)) {
-            // Shows them the scoreboard instead of sending a message in chat. Will disappear after a few seconds.
+        boolean showChat = true;
+        if (showInfoBoard(toShow)) {
             FScoreboard.get(this).setTemporarySidebar(new FInfoSidebar(toShow));
-        } else {
-            String msg = toShow.getTag(this);
-            if (toShow.getDescription().length() > 0) {
-                msg += " - " + toShow.getDescription();
-            }
-            this.sendMessage(msg);
+            showChat = P.p.getConfig().getBoolean("scoreboard.also-send-chat", true);
+        }
+        if (showChat) {
+            this.sendMessage(P.p.txt.parse(TL.FACTION_LEAVE.format(from.getTag(this), toShow.getTag(this))));
         }
     }
 
@@ -580,8 +585,18 @@ public abstract class MemoryFPlayer implements FPlayer {
      *
      * @return true if should show, otherwise false.
      */
-    public boolean shouldShowScoreboard(Faction toShow) {
-        return !toShow.isWarZone() && !toShow.isNone() && !toShow.isSafeZone() && P.p.getConfig().contains("scoreboard.finfo") && P.p.getConfig().getBoolean("scoreboard.finfo-enabled", false) && P.p.cmdBase.cmdSB.showBoard(this) && FScoreboard.get(this) != null;
+    public boolean showInfoBoard(Faction toShow) {
+        return showScoreboard && !toShow.isWarZone() && !toShow.isNone() && !toShow.isSafeZone() && P.p.getConfig().contains("scoreboard.finfo") && P.p.getConfig().getBoolean("scoreboard.finfo-enabled", false) && FScoreboard.get(this) != null;
+    }
+
+    @Override
+    public boolean showScoreboard() {
+        return this.showScoreboard;
+    }
+
+    @Override
+    public void setShowScoreboard(boolean show) {
+        this.showScoreboard = show;
     }
 
     // -------------------------------
@@ -710,10 +725,10 @@ public abstract class MemoryFPlayer implements FPlayer {
         } else if (factionBuffer > 0 && Board.getInstance().hasFactionWithin(flocation, myFaction, factionBuffer)) {
             error = P.p.txt.parse(TL.CLAIM_TOOCLOSETOOTHERFACTION.format(factionBuffer));
         } else if (flocation.isOutsideWorldBorder(worldBuffer)) {
-            if(worldBuffer > 0) {
-                error = P.p.txt.parse(TL.CLAIM_OUTSIDEBORDERBUFFER.format(worldBuffer));                 
+            if (worldBuffer > 0) {
+                error = P.p.txt.parse(TL.CLAIM_OUTSIDEBORDERBUFFER.format(worldBuffer));
             } else {
-                error = P.p.txt.parse(TL.CLAIM_OUTSIDEWORLDBORDER.toString()); 
+                error = P.p.txt.parse(TL.CLAIM_OUTSIDEWORLDBORDER.toString());
             }
         } else if (currentFaction.isNormal()) {
             if (myFaction.isPeaceful()) {
@@ -871,5 +886,37 @@ public abstract class MemoryFPlayer implements FPlayer {
     @Override
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public void clearWarmup() {
+        if (warmup != null) {
+            Bukkit.getScheduler().cancelTask(warmupTask);
+            this.stopWarmup();
+        }
+    }
+
+    @Override
+    public void stopWarmup() {
+        warmup = null;
+    }
+
+    @Override
+    public boolean isWarmingUp() {
+        return warmup != null;
+    }
+
+    @Override
+    public WarmUpUtil.Warmup getWarmupType() {
+        return warmup;
+    }
+
+    @Override
+    public void addWarmup(WarmUpUtil.Warmup warmup, int taskId) {
+        if (this.warmup != null) {
+            this.clearWarmup();
+        }
+        this.warmup = warmup;
+        this.warmupTask = taskId;
     }
 }

@@ -9,10 +9,13 @@ import com.massivecraft.factions.zcore.util.TL;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 
 public abstract class FCommand extends MCommand<P> {
+
+    public SimpleDateFormat sdf = new SimpleDateFormat(TL.DATE_FORMAT.toString());
 
     public boolean disableOnLock;
 
@@ -192,6 +195,17 @@ public abstract class FCommand extends MCommand<P> {
             // First we try an exact match
             Faction faction = Factions.getInstance().getByTag(name); // Checks for faction name match.
 
+            // Now lets try for warzone / safezone. Helpful for custom warzone / safezone names.
+            // Do this after we check for an exact match in case they rename the warzone / safezone
+            // and a player created faction took one of the names.
+            if (faction == null) {
+                if (name.equalsIgnoreCase("warzone")) {
+                    faction = Factions.getInstance().getWarZone();
+                } else if (name.equalsIgnoreCase("safezone")) {
+                    faction = Factions.getInstance().getSafeZone();
+                }
+            }
+
             // Next we match faction tags
             if (faction == null) {
                 faction = Factions.getInstance().getBestTagMatch(name);
@@ -288,11 +302,11 @@ public abstract class FCommand extends MCommand<P> {
         }
     }
 
-    public void doWarmUp(TL translationKey, String action, Runnable runnable, long delay) {
-        this.doWarmUp(this.fme, translationKey, action, runnable, delay);
+    public void doWarmUp(WarmUpUtil.Warmup warmup, TL translationKey, String action, Runnable runnable, long delay) {
+        this.doWarmUp(this.fme, warmup, translationKey, action, runnable, delay);
     }
 
-    public void doWarmUp(FPlayer player, TL translationKey, String action, Runnable runnable, long delay) {
-        WarmUpUtil.process(player, translationKey, action, runnable, delay);
+    public void doWarmUp(FPlayer player, WarmUpUtil.Warmup warmup, TL translationKey, String action, Runnable runnable, long delay) {
+        WarmUpUtil.process(player, warmup, translationKey, action, runnable, delay);
     }
 }

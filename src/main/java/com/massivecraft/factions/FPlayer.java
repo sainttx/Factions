@@ -5,6 +5,7 @@ import com.massivecraft.factions.iface.RelationParticipator;
 import com.massivecraft.factions.struct.ChatMode;
 import com.massivecraft.factions.struct.Relation;
 import com.massivecraft.factions.struct.Role;
+import com.massivecraft.factions.util.WarmUpUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -73,6 +74,10 @@ public interface FPlayer extends EconomyParticipator {
     public void setSpyingChat(boolean chatSpying);
 
     public boolean isSpyingChat();
+
+    public boolean showScoreboard();
+
+    public void setShowScoreboard(boolean show);
 
     // FIELD: account
     public String getAccountId();
@@ -191,16 +196,7 @@ public interface FPlayer extends EconomyParticipator {
 
     public boolean isInEnemyTerritory();
 
-    public void sendFactionHereMessage();
-
-    /**
-     * Check if the scoreboard should be shown. Simple method to be used by above method.
-     *
-     * @param toShow Faction to be shown.
-     *
-     * @return true if should show, otherwise false.
-     */
-    public boolean shouldShowScoreboard(Faction toShow);
+    public void sendFactionHereMessage(Faction from);
 
     // -------------------------------
     // Actions
@@ -233,4 +229,19 @@ public interface FPlayer extends EconomyParticipator {
     public boolean isOffline();
 
     public void setId(String id);
+
+    // -------------------------------
+    // Warmups
+    // -------------------------------
+
+    public boolean isWarmingUp();
+
+    public WarmUpUtil.Warmup getWarmupType();
+
+    public void addWarmup(WarmUpUtil.Warmup warmup, int taskId);
+
+    public void stopWarmup();
+
+    public void clearWarmup();
+
 }

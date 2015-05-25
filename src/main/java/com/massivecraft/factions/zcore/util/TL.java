@@ -19,6 +19,8 @@ package com.massivecraft.factions.zcore.util;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.text.SimpleDateFormat;
+
 /**
  * An enum for requesting strings from the language file. The contents of this enum file may be subject to frequent
  * changes.
@@ -392,13 +394,14 @@ public enum TL {
     COMMAND_RELATIONS_PEACEFUL("<i>This will have no effect while your faction is peaceful."),
     COMMAND_RELATIONS_PEACEFULOTHER("<i>This will have no effect while their faction is peaceful."),
     COMMAND_RELATIONS_DESCRIPTION("Set relation wish to another faction"),
-    COMMAND_RELATIONS_EXCEEDS_MAX("<i>Failed to set relation wish. You can only have %1$d %2%s."),
+    COMMAND_RELATIONS_EXCEEDS_ME("<i>Failed to set relation wish. You can only have %1$s %2$s."),
+    COMMAND_RELATIONS_EXCEEDS_THEY("<i>Failed to set relation wish. They can only have %1$s %2$s."),
 
     COMMAND_RELATIONS_PROPOSAL_1("%1$s<i> wishes to be your %2$s"),
     COMMAND_RELATIONS_PROPOSAL_2("<i>Type <c>/%1$s %2$s %3$s<i> to accept."),
     COMMAND_RELATIONS_PROPOSAL_SENT("%1$s<i> were informed that you wish to be %2$s"),
 
-    COMMAND_RELOAD_TIME("<i>Reloaded <h>conf.json <i>from disk, took <h>%1$d ms<i>."),
+    COMMAND_RELOAD_TIME("<i>Reloaded <h>all configuration files <i>from disk, took <h>%1$d ms<i>."),
     COMMAND_RELOAD_DESCRIPTION("Reload data file(s) from disk"),
 
     COMMAND_SAFEUNCLAIMALL_DESCRIPTION("Unclaim all safezone land"),
@@ -435,7 +438,8 @@ public enum TL {
     COMMAND_SHOW_JOINING("<a>Joining: <i>%1$s "),
     COMMAND_SHOW_INVITATION("invitation is required"),
     COMMAND_SHOW_UNINVITED("no invitation is needed"),
-    COMMAND_SHOW_POWER("<a>Land / Power / Maxpower: <i> %1$d/%2$d/%3$d %4$s. <a>Raidable: <i>%5$s"),
+    COMMAND_SHOW_NOHOME("n/a"),
+    COMMAND_SHOW_POWER("<a>Land / Power / Maxpower: <i> %1$d/%2$d/%3$d %4$s."),
     COMMAND_SHOW_BONUS(" (bonus: "),
     COMMAND_SHOW_PENALTY(" (penalty: "),
     COMMAND_SHOW_DEPRECIATED("(%1$s depreciated)"), //This is spelled correctly.
@@ -456,6 +460,16 @@ public enum TL {
     COMMAND_STATUS_ONLINE("Online"),
     COMMAND_STATUS_AGOSUFFIX(" ago."),
     COMMAND_STATUS_DESCRIPTION("Show the status of a player"),
+
+    COMMAND_STUCK_TIMEFORMAT("m 'minutes', s 'seconds.'"),
+    COMMAND_STUCK_CANCELLED("<a>Teleport cancelled because you were damaged"),
+    COMMAND_STUCK_OUTSIDE("<a>Teleport cancelled because you left <i>%1$d <a>block radius"),
+    COMMAND_STUCK_EXISTS("<a>You are already teleporting, you must wait <i>%1$s"),
+    COMMAND_STUCK_START("<a>Teleport will commence in <i>%s<a>. Don't take or deal damage. "),
+    COMMAND_STUCK_TELEPORT("<a>Teleported safely to %1$d, %2$d, %3$d."),
+    COMMAND_STUCK_TOSTUCK("to safely teleport %1$s out"),
+    COMMAND_STUCK_FORSTUCK("for %1$s initiating a safe teleport out"),
+    COMMAND_STUCK_DESCRIPTION("Safely teleports you out of enemy faction"),
 
     COMMAND_TAG_TAKEN("<b>That tag is already taken"),
     COMMAND_TAG_TOCHANGE("to change the faction tag"),
@@ -557,12 +571,14 @@ public enum TL {
     GENERIC_NOPLAYERFOUND("<b>No player \"<p>%1$s<b>\" could not be found."),
     GENERIC_ARGS_TOOFEW("<b>Too few arguments. <i>Use like this:"),
     GENERIC_ARGS_TOOMANY("<b>Strange argument \"<p>%1$s<b>\". <i>Use the command like this:"),
+    GENERIC_DEFAULTDESCRIPTION("Default faction description :("),
     GENERIC_OWNERS("Owner(s): %1$s"),
     GENERIC_PUBLICLAND("Public faction land."),
     GENERIC_FACTIONLESS("factionless"),
     GENERIC_SERVERADMIN("A server admin"),
     GENERIC_DISABLED("disabled"),
     GENERIC_ENABLED("enabled"),
+    GENERIC_INFINITY("∞"),
     GENERIC_CONSOLEONLY("This command cannot be run as a player."),
     GENERIC_PLAYERONLY("<b>This command can only be used by ingame players."),
     GENERIC_ASKYOURLEADER("<i> Ask your leader to:"),
@@ -591,6 +607,12 @@ public enum TL {
     CHAT_ALLIANCE("alliance chat"),
     CHAT_TRUCE("truce chat"),
     CHAT_PUBLIC("public chat"),
+
+    /**
+     * Economy stuff
+     */
+
+    ECON_OFF("no %s"), // no balance, no value, no refund, etc
 
     /**
      * Relations
@@ -631,7 +653,7 @@ public enum TL {
     PLAYER_USE_WILDERNESS("<b>You can't use <h>%s<b> in the wilderness."),
     PLAYER_USE_SAFEZONE("<b>You can't use <h>%s<b> in a safe zone."),
     PLAYER_USE_WARZONE("<b>You can't use <h>%s<b> in a war zone."),
-    PLAYER_USE_TERRITORY("<b>You can't use <h>%s<b> in the territory of <h>%s<b>."),
+    PLAYER_USE_TERRITORY("<b>You can't <h>%s<b> in the territory of <h>%s<b>."),
     PLAYER_USE_OWNED("<b>You can't use <h>%s<b> in this territory, it is owned by: %s<b>."),
     PLAYER_COMMAND_WARZONE("<b>You can't use the command '%s' in warzone."),
     PLAYER_COMMAND_NEUTRAL("<b>You can't use the command '%s' in neutral territory."),
@@ -672,9 +694,11 @@ public enum TL {
     SAFEZONE("safezone", "&6Safezone"),
     SAFEZONE_DESCRIPTION("safezone-description", "Free from pvp and monsters."),
     TOGGLE_SB("toggle-sb", "You now have scoreboards set to {value}"),
+    FACTION_LEAVE("faction-leave", "<a>Leaving %1$s, <a>Entering %2$s"),
     DEFAULT_PREFIX("default-prefix", "{relationcolor}[{faction}] &r"),
     FACTION_LOGIN("faction-login", "&e%1$s &9logged in."),
     FACTION_LOGOUT("faction-logout", "&e%1$s &9logged out.."),
+    DATE_FORMAT("date-format", "MM/d/yy h:ma"), // 3/31/15 07:49AM
 
     /**
      * Raidable is used in multiple places. Allow more than just true/false.
@@ -684,11 +708,14 @@ public enum TL {
     /**
      * Warmups
      */
-    WARMUPS_NOTIFY_TELEPORT("&eYou will teleport to &d%1$s &ein &d%2$d &eseconds.");
+    WARMUPS_NOTIFY_TELEPORT("&eYou will teleport to &d%1$s &ein &d%2$d &eseconds."),
+    WARMUPS_ALREADY("&cYou are already warming up."),
+    WARMUPS_CANCELLED("&cYou have cancelled your warmup.");
 
     private String path;
     private String def;
     private static YamlConfiguration LANG;
+    public static SimpleDateFormat sdf;
 
     /**
      * Lang enum constructor.
@@ -721,6 +748,7 @@ public enum TL {
      */
     public static void setFile(YamlConfiguration config) {
         LANG = config;
+        sdf = new SimpleDateFormat(DATE_FORMAT.toString());
     }
 
     @Override

@@ -102,6 +102,7 @@ public class Conf {
     public static boolean handleExploitEnderPearlClipping = true;
     public static boolean handleExploitInteractionSpam = true;
     public static boolean handleExploitTNTWaterlog = false;
+    public static boolean handleExploitLiquidFlow = false;
 
     public static boolean homesEnabled = true;
     public static boolean homesMustBeInClaimedTerritory = true;
@@ -249,6 +250,7 @@ public class Conf {
     public static double econCostMap = 0.0;
     public static double econCostPower = 0.0;
     public static double econCostShow = 0.0;
+    public static double econCostStuck = 0.0;
     public static double econCostOpen = 0.0;
     public static double econCostAlly = 0.0;
     public static double econCostTruce = 0.0;

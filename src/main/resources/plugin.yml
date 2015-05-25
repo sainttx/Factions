@@ -83,6 +83,7 @@ permissions:
       factions.relation: true
       factions.sethome: true
       factions.show: true
+      factions.stuck: true
       factions.tag: true
       factions.title: true
       factions.version: true
@@ -98,6 +99,8 @@ permissions:
     description: hand over your admin rights
   factions.admin.any:
     description: give or revoke admin status for any player in any faction
+  factions.announce:
+    description: announce things to the peasants
   factions.autoclaim:
     description: auto-claim land as you walk around
   factions.bypass:
@@ -205,6 +208,8 @@ permissions:
     description: designate a faction as permanent
   factions.setpermanentpower:
     description: set permanent power for a faction
+  factions.stuck:
+    description: teleports player outside a faction
   factions.power:
     description: show player power info
   factions.power.any:

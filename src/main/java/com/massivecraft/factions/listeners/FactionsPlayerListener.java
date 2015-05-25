@@ -72,7 +72,7 @@ public class FactionsPlayerListener implements Listener {
         if (P.p.getConfig().getBoolean("scoreboard.default-enabled", false)) {
             FScoreboard.init(me);
             FScoreboard.get(me).setDefaultSidebar(new FDefaultSidebar(), P.p.getConfig().getInt("default-update-interval", 20));
-            FScoreboard.get(me).setSidebarVisibility(P.p.cmdBase.cmdSB.showBoard(me));
+            FScoreboard.get(me).setSidebarVisibility(me.showScoreboard());
         }
 
         Faction myFaction = me.getFaction();
@@ -93,6 +93,13 @@ public class FactionsPlayerListener implements Listener {
         me.getPower();
         // and update their last login time to point to when the logged off, for auto-remove routine
         me.setLastLoginTime(System.currentTimeMillis());
+
+        // if player is waiting for fstuck teleport but leaves, remove
+        if (P.p.getStuckMap().containsKey(me.getPlayer().getUniqueId())) {
+            FPlayers.getInstance().getByPlayer(me.getPlayer()).msg(TL.COMMAND_STUCK_CANCELLED);
+            P.p.getStuckMap().remove(me.getPlayer().getUniqueId());
+            P.p.getTimers().remove(me.getPlayer().getUniqueId());
+        }
 
         Faction myFaction = me.getFaction();
         if (!myFaction.isNone()) {
@@ -115,18 +122,22 @@ public class FactionsPlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+        FPlayer me = FPlayers.getInstance().getByPlayer(player);
+
         // clear visualization
         if (event.getFrom().getBlockX() != event.getTo().getBlockX() || event.getFrom().getBlockY() != event.getTo().getBlockY() || event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
             VisualizeUtil.clear(event.getPlayer());
+            if (me.isWarmingUp()) {
+                me.clearWarmup();
+                me.msg(TL.WARMUPS_CANCELLED);
+            }
         }
 
         // quick check to make sure player is moving between chunks; good performance boost
         if (event.getFrom().getBlockX() >> 4 == event.getTo().getBlockX() >> 4 && event.getFrom().getBlockZ() >> 4 == event.getTo().getBlockZ() >> 4 && event.getFrom().getWorld() == event.getTo().getWorld()) {
             return;
         }
-
-        Player player = event.getPlayer();
-        FPlayer me = FPlayers.getInstance().getByPlayer(player);
 
         // Did we change coord?
         FLocation from = me.getLastStoodAt();
@@ -159,7 +170,7 @@ public class FactionsPlayerListener implements Listener {
             String ownersTo = myFaction.getOwnerListString(to);
 
             if (changedFaction) {
-                me.sendFactionHereMessage();
+                me.sendFactionHereMessage(factionFrom);
                 if (Conf.ownedAreasEnabled && Conf.ownedMessageOnBorder && myFaction == factionTo && !ownersTo.isEmpty()) {
                     me.sendMessage(TL.GENERIC_OWNERS.format(ownersTo));
                 }
@@ -400,7 +411,7 @@ public class FactionsPlayerListener implements Listener {
         // You may use any block unless it is another faction's territory...
         if (rel.isNeutral() || (rel.isEnemy() && Conf.territoryEnemyProtectMaterials) || (rel.isAlly() && Conf.territoryAllyProtectMaterials) || (rel.isTruce() && Conf.territoryTruceProtectMaterials)) {
             if (!justCheck) {
-                me.msg(TL.PLAYER_USE_TERRITORY, (material == Material.SOIL ? "trample" : "use"), TextUtil.getMaterialName(material), otherFaction.getTag(myFaction));
+                me.msg(TL.PLAYER_USE_TERRITORY, (material == Material.SOIL ? "trample " : "use ") + TextUtil.getMaterialName(material), otherFaction.getTag(myFaction));
             }
 
             return false;

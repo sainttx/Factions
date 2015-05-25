@@ -59,6 +59,12 @@ public abstract class MPlugin extends JavaPlugin {
         return this.baseCommands;
     }
 
+    // holds f stuck start times
+    private Map<UUID, Long> timers = new HashMap<UUID, Long>();
+
+    //holds f stuck taskids
+    public Map<UUID, Integer> stuckMap = new HashMap<UUID, Integer>();
+
     // -------------------------------------------- //
     // ENABLE
     // -------------------------------------------- //
@@ -162,6 +168,12 @@ public abstract class MPlugin extends JavaPlugin {
             if (conf.getString(item.getPath()) == null) {
                 conf.set(item.getPath(), item.getDefault());
             }
+        }
+
+        // Remove this here because I'm sick of dealing with bug reports due to bad decisions on my part.
+        if (conf.getString(TL.COMMAND_SHOW_POWER.getPath(), "").contains("%5$s")) {
+            conf.set(TL.COMMAND_SHOW_POWER.getPath(), TL.COMMAND_SHOW_POWER.getDefault());
+            log(Level.INFO, "Removed errant format specifier from f show power.");
         }
 
         TL.setFile(conf);
@@ -310,6 +322,14 @@ public abstract class MPlugin extends JavaPlugin {
 
     public void postAutoSave() {
 
+    }
+
+    public Map<UUID, Integer> getStuckMap() {
+        return this.stuckMap;
+    }
+
+    public Map<UUID, Long> getTimers() {
+        return this.timers;
     }
 
     // -------------------------------------------- //
